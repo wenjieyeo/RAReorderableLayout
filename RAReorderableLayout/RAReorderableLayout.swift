@@ -169,6 +169,10 @@ open class RAReorderableLayout: UICollectionViewFlowLayout, UIGestureRecognizerD
         return scrollDirection == .vertical ? trigerPadding.bottom : trigerPadding.right
     }
     
+    public var draggingEnabled: Bool = false
+    
+    public var changeBoundsWhenMoved: Bool = true
+    
     required public init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
         configureObserver()
@@ -282,7 +286,10 @@ open class RAReorderableLayout: UICollectionViewFlowLayout, UIGestureRecognizerD
         collectionView!.performBatchUpdates({
             fakeCell.indexPath = toIndexPath
             fakeCell.cellFrame = attribute.frame
-            fakeCell.changeBoundsIfNeeded(attribute.bounds)
+            
+            if self.changeBoundsWhenMoved {
+                fakeCell.changeBoundsIfNeeded(attribute.bounds)
+            }
             
             self.collectionView!.deleteItems(at: [atIndexPath])
             self.collectionView!.insertItems(at: [toIndexPath])
@@ -369,6 +376,15 @@ open class RAReorderableLayout: UICollectionViewFlowLayout, UIGestureRecognizerD
             collectionView.addGestureRecognizer(self.panGesture!)
             }
         }
+    
+    public func removeGestureRecognizers() {
+        guard let collectionView = collectionView else { return }
+        guard let longPress = longPress else { return }
+        guard let panGesture = panGesture else { return }
+        
+        collectionView.removeGestureRecognizer(longPress)
+        collectionView.removeGestureRecognizer(panGesture)
+    }
     
     open func cancelDrag() {
         cancelDrag(nil)
@@ -469,7 +485,7 @@ open class RAReorderableLayout: UICollectionViewFlowLayout, UIGestureRecognizerD
         
         switch gestureRecognizer {
         case longPress:
-            return !(collectionView!.panGestureRecognizer.state != .possible && collectionView!.panGestureRecognizer.state != .failed)
+            return !(collectionView!.panGestureRecognizer.state != .possible && collectionView!.panGestureRecognizer.state != .failed) && draggingEnabled
         case panGesture:
             return !(longPress!.state == .possible || longPress!.state == .failed)
         default:
