@@ -171,6 +171,8 @@ open class RAReorderableLayout: UICollectionViewFlowLayout, UIGestureRecognizerD
     
     public var draggingEnabled: Bool = false
     
+    public var draggingCellScale: CGFloat = 1.1
+    
     public var changeBoundsWhenMoved: Bool = true
     
     required public init?(coder aDecoder: NSCoder) {
@@ -432,6 +434,7 @@ open class RAReorderableLayout: UICollectionViewFlowLayout, UIGestureRecognizerD
             let currentCell = collectionView?.cellForItem(at: indexPath!)
             
             cellFakeView = RACellFakeView(cell: currentCell!)
+            cellFakeView!.scale = draggingCellScale
             cellFakeView!.indexPath = indexPath
             cellFakeView!.originalCenter = currentCell?.center
             cellFakeView!.cellFrame = layoutAttributesForItem(at: indexPath!)!.frame
@@ -513,6 +516,8 @@ private class RACellFakeView: UIView {
     
     var cellFakeHightedView: UIImageView?
     
+    var scale: CGFloat = 1.1
+    
     fileprivate var indexPath: IndexPath?
     
     fileprivate var originalCenter: CGPoint?
@@ -572,7 +577,7 @@ private class RACellFakeView: UIView {
             options: [.curveEaseInOut, .beginFromCurrentState],
             animations: {
                 self.center = self.originalCenter!
-                self.transform = CGAffineTransform(scaleX: 1.1, y: 1.1)
+                self.transform = CGAffineTransform(scaleX: self.scale, y: self.scale)
                 self.cellFakeHightedView!.alpha = 0;
                 let shadowAnimation = CABasicAnimation(keyPath: "shadowOpacity")
                 shadowAnimation.fromValue = 0
