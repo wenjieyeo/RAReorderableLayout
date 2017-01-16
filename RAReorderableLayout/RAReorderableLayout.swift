@@ -293,8 +293,7 @@ open class RAReorderableLayout: UICollectionViewFlowLayout, UIGestureRecognizerD
                 fakeCell.changeBoundsIfNeeded(attribute.bounds)
             }
             
-            self.collectionView!.deleteItems(at: [atIndexPath])
-            self.collectionView!.insertItems(at: [toIndexPath])
+            self.collectionView!.moveItem(at: atIndexPath, to: toIndexPath)
             
             // did move item
             self.delegate?.collectionView(self.collectionView!, at: atIndexPath, didMoveTo: toIndexPath)
