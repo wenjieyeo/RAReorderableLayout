@@ -175,6 +175,8 @@ open class RAReorderableLayout: UICollectionViewFlowLayout, UIGestureRecognizerD
     
     public var changeBoundsWhenMoved: Bool = true
     
+    public var updateSnapshotFrequently: Bool = false
+    
     required public init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
         configureObserver()
@@ -434,6 +436,7 @@ open class RAReorderableLayout: UICollectionViewFlowLayout, UIGestureRecognizerD
             
             cellFakeView = RACellFakeView(cell: currentCell!)
             cellFakeView!.scale = draggingCellScale
+            cellFakeView!.updateImageFrequently = updateSnapshotFrequently
             cellFakeView!.indexPath = indexPath
             cellFakeView!.originalCenter = currentCell?.center
             cellFakeView!.cellFrame = layoutAttributesForItem(at: indexPath!)!.frame
@@ -523,6 +526,8 @@ private class RACellFakeView: UIView {
     
     fileprivate var cellFrame: CGRect?
     
+    fileprivate var updateImageFrequently = false
+    
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
     }
@@ -587,6 +592,7 @@ private class RACellFakeView: UIView {
             },
             completion: { _ in
                 self.cellFakeHightedView?.removeFromSuperview()
+                self.updateSnapshotAsynchronously()
             }
         )
     }
@@ -608,6 +614,8 @@ private class RACellFakeView: UIView {
             },
             completion: { _ in
                 completion?()
+                
+                self.updateImageFrequently = false
             }
         )
     }
@@ -618,6 +626,19 @@ private class RACellFakeView: UIView {
         cell!.drawHierarchy(in: cell!.bounds, afterScreenUpdates: true)
 
         return UIGraphicsGetImageFromCurrentImageContext()!
+    }
+    
+    
+    @objc fileprivate func updateSnapshotAsynchronously() {
+        
+        if !self.updateImageFrequently {
+            return
+        }
+        
+        let image = self.getCellImage()
+        self.cellFakeImageView?.image = image
+        
+        self.perform(#selector(RACellFakeView.updateSnapshotAsynchronously), with: nil, afterDelay: 0.1, inModes: [RunLoopMode.defaultRunLoopMode, RunLoopMode.UITrackingRunLoopMode])
     }
 }
 
