@@ -623,7 +623,7 @@ private class RACellFakeView: UIView {
     fileprivate func getCellImage() -> UIImage {
         UIGraphicsBeginImageContextWithOptions(cell!.bounds.size, false, UIScreen.main.scale * 2)
         defer { UIGraphicsEndImageContext() }
-        cell!.drawHierarchy(in: cell!.bounds, afterScreenUpdates: true)
+        cell!.drawHierarchy(in: cell!.bounds, afterScreenUpdates: false)
 
         return UIGraphicsGetImageFromCurrentImageContext()!
     }
@@ -638,7 +638,7 @@ private class RACellFakeView: UIView {
         let image = self.getCellImage()
         self.cellFakeImageView?.image = image
         
-        self.perform(#selector(RACellFakeView.updateSnapshotAsynchronously), with: nil, afterDelay: 0.1, inModes: [RunLoopMode.defaultRunLoopMode, RunLoopMode.UITrackingRunLoopMode])
+        self.perform(#selector(RACellFakeView.updateSnapshotAsynchronously), with: nil, afterDelay: 0.01, inModes: [RunLoopMode.defaultRunLoopMode, RunLoopMode.UITrackingRunLoopMode])
     }
 }
 
